@@ -453,10 +453,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main():
     DEFAULT_OUTPUT.mkdir(parents=True, exist_ok=True)
-    server = ThreadingHTTPServer(("127.0.0.1", 8765), Handler)
-    url = "http://127.0.0.1:8765"
+    port = int(os.environ.get("FORMYDJ_PORT", "8765"))
+    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    url = f"http://127.0.0.1:{port}"
     print(f"ForMyDJ running at {url}")
-    threading.Timer(0.8, lambda: webbrowser.open(url)).start()
+    if os.environ.get("FORMYDJ_NO_BROWSER") != "1":
+        threading.Timer(0.8, lambda: webbrowser.open(url)).start()
     server.serve_forever()
 
 

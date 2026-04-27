@@ -59,7 +59,7 @@ Then open:
 dist/ForMyDJ.app
 ```
 
-The desktop app opens a small ForMyDJ window where you can paste links, choose WAV/AIFF/MP3, choose the output folder, add local audio files, clear cache, and watch the processing queue.
+The desktop app opens a ForMyDJ window with the embedded local UI. It starts the local audio engine internally, so you do not need to run a terminal command after opening the app.
 
 The browser version is still available for drag/drop testing:
 
