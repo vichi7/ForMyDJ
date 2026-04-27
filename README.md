@@ -45,7 +45,23 @@ See [docs/SPEC.md](docs/SPEC.md) for the product and technical spec.
 
 ## Run The Local App
 
-The working local version runs without third-party Python packages:
+The desktop version runs without third-party Python packages.
+
+Build the double-clickable macOS app:
+
+```bash
+scripts/build-macos-app.sh
+```
+
+Then open:
+
+```text
+dist/ForMyDJ.app
+```
+
+The desktop app opens a small ForMyDJ window where you can paste links, choose WAV/AIFF/MP3, choose the output folder, add local audio files, clear cache, and watch the processing queue.
+
+The browser version is still available for drag/drop testing:
 
 ```bash
 scripts/run-local.sh

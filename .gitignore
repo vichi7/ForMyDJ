@@ -7,4 +7,5 @@ tmp/
 *.sqlite-shm
 *.sqlite-wal
 __pycache__/
+.pycache/
 *.pyc
