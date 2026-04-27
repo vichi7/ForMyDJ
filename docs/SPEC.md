@@ -27,7 +27,7 @@ The first version is not a full review dashboard. It is a downloader/converter w
 - Extract title, artist/uploader, album/release info when available, genre, mood, upload date, source platform, source URL, duration, cover art, and key if detected.
 - Exclude follower count, likes, plays, and comments.
 - Save as `Song Title - Artist`.
-- Group output files by artist folder.
+- Save output files directly in the selected output folder.
 - Clean unsafe filename characters.
 - Embed metadata where supported.
 - Save source URL and technical report as sidecar metadata.
@@ -106,7 +106,7 @@ The near-term goal is Rekordbox-friendly output while keeping ForMyDJ's own in-h
 
 ForMyDJ should:
 
-- Save cleanly named files in predictable artist folders.
+- Save cleanly named files directly in the selected output folder.
 - Embed useful tags and cover art.
 - Optionally create a Rekordbox XML/import playlist that points at newly processed files in a future version.
 - Avoid relying on Rekordbox just to identify musical key.

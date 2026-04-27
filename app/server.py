@@ -186,9 +186,9 @@ def download_source(url, workdir):
 def convert_audio(source_path, metadata, output_dir, output_format):
     artist = sanitize(metadata.get("artist") or metadata.get("uploader"), "Unknown Artist")
     title = sanitize(metadata.get("title") or Path(source_path).stem, "Unknown Title")
-    artist_folder = Path(output_dir).expanduser() / artist
-    artist_folder.mkdir(parents=True, exist_ok=True)
-    output_path = unique_path(artist_folder, sanitize(f"{title} - {artist}"), output_format)
+    output_folder = Path(output_dir).expanduser()
+    output_folder.mkdir(parents=True, exist_ok=True)
+    output_path = unique_path(output_folder, sanitize(f"{title} - {artist}"), output_format)
 
     args = [
         FFMPEG,

@@ -15,7 +15,7 @@ The first version prioritizes audio handling over UI polish:
 - Standardize output to 44.1 kHz, 16-bit stereo for WAV/AIFF.
 - Trim leading/trailing digital silence only.
 - Preserve and extract useful metadata.
-- Save files as `Song Title - Artist` inside artist folders.
+- Save files directly in the selected output folder as `Song Title - Artist`.
 - Keep converted files available offline after a successful download.
 - Delete temporary source files after conversion.
 

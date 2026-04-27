@@ -4,12 +4,11 @@ enum AudioConverter {
     static func convert(sourceURL: URL, metadata: SourceMetadata, outputFolder: URL, format: OutputFormat) async throws -> URL {
         let artist = sanitize(metadata.artist ?? metadata.uploader ?? "Unknown Artist")
         let title = sanitize(metadata.title ?? sourceURL.deletingPathExtension().lastPathComponent)
-        let artistFolder = outputFolder.appendingPathComponent(artist, isDirectory: true)
-        try FileManager.default.createDirectory(at: artistFolder, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: outputFolder, withIntermediateDirectories: true)
 
         let baseName = "\(title) - \(artist)"
         let outputURL = uniqueURL(
-            in: artistFolder,
+            in: outputFolder,
             baseName: baseName,
             extension: format.fileExtension
         )
@@ -59,4 +58,3 @@ enum AudioConverter {
         return candidate
     }
 }
-
