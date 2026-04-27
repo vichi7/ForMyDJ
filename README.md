@@ -5,11 +5,13 @@ ForMyDJ is a local-first macOS DJ/A&R utility for downloading authorized music l
 The first version prioritizes audio handling over UI polish:
 
 - Paste one link at a time.
+- Drag and drop local audio files.
 - Start downloading immediately.
-- Allow multiple jobs to process in parallel.
+- Allow unlimited jobs to process in parallel.
 - Prefer the original uploaded WAV/AIFF when a platform exposes it.
 - Fall back to the best available audio stream and convert to the selected output format.
 - Export WAV, AIFF, or MP3.
+- Use 320 kbps CBR for MP3 output.
 - Standardize output to 44.1 kHz, 16-bit stereo for WAV/AIFF.
 - Trim leading/trailing digital silence only.
 - Preserve and extract useful metadata.
@@ -32,11 +34,11 @@ The current Mac already has:
 The first practical build should be a macOS-first local app with a minimal music-library interface:
 
 1. Link input
-2. Output format selector: WAV, AIFF, MP3
-3. Destination folder picker
-4. Job queue with progress and retry status
-5. Finished-file action: reveal in Finder
-6. Alerts for low-quality source, lossy-to-lossless conversion, clipping, mono audio, missing metadata, failed download, or duration over 20 minutes
+2. Local audio drag/drop import
+3. Output format selector: WAV, AIFF, MP3
+4. Destination folder picker
+5. Job queue with progress and retry status
+6. Finished-file action: reveal in Finder
+7. Alerts for low-quality source, lossy-to-lossless conversion, clipping, mono audio, missing metadata, failed download, or duration over 20 minutes
 
 See [docs/SPEC.md](docs/SPEC.md) for the product and technical spec.
-

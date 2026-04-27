@@ -11,9 +11,11 @@ The first version is not a full review dashboard. It is a downloader/converter w
 - Runs locally on macOS.
 - Easy desktop workflow.
 - One link submitted at a time.
-- Multiple submitted links can process concurrently.
+- Multiple submitted links can process concurrently, with no explicit user-facing limit.
+- Local audio files can be dragged and dropped for metadata cleanup/conversion.
 - Download starts immediately after submission.
 - User chooses output format per job: WAV, AIFF, or MP3.
+- MP3 output defaults to 320 kbps CBR.
 - Prefer original platform-provided WAV/AIFF if exposed.
 - Fall back to best available stream when original file is not exposed.
 - WAV/AIFF output: 44.1 kHz, 16-bit, stereo.
@@ -33,7 +35,7 @@ The first version is not a full review dashboard. It is a downloader/converter w
 - Delete temporary source files after successful conversion.
 - Show visual failure notifications.
 - Retry failed jobs in the background.
-- Reject or warn on tracks over 20 minutes.
+- Warn on tracks over 20 minutes, but still allow download.
 - Reveal completed file in Finder.
 - Prioritize Finder and Rekordbox-friendly file organization.
 
@@ -89,13 +91,26 @@ Each job should produce a small report:
 
 ## Key Detection
 
-Musical key detection is useful, but should be treated as analysis metadata, not guaranteed truth. It can be added after the downloader/converter path is reliable.
+Musical key detection is useful, but should be treated as analysis metadata, not guaranteed truth. The first version should rely on Rekordbox analysis rather than implementing key detection inside ForMyDJ.
 
-Potential implementation options:
+Potential future implementation options:
 
 - Use an audio analysis library such as Essentia if available.
 - Call an external key-detection tool if it is stable on macOS.
-- Defer to Rekordbox for key detection in the earliest version.
+- Read or display Rekordbox-generated metadata only if there is a stable, supported workflow.
+
+## Rekordbox Integration
+
+The near-term goal is Rekordbox-friendly output, not replacing Rekordbox analysis.
+
+ForMyDJ should:
+
+- Save cleanly named files in predictable artist folders.
+- Embed useful tags and cover art.
+- Optionally create a Rekordbox XML/import playlist that points at newly processed files.
+- Let Rekordbox perform its own BPM, key, beatgrid, phrase, and waveform analysis after import.
+
+ForMyDJ should not depend on unsupported modification of Rekordbox internal databases for version one. If a supported automation path becomes available, it can be added behind a dedicated Rekordbox integration module.
 
 ## Architecture Direction
 
@@ -123,10 +138,7 @@ If a job fails:
 
 ## Open Questions
 
-1. Should MP3 output use 320 kbps CBR, high-quality VBR, or a selectable bitrate?
-2. Should the app process unlimited jobs concurrently, or use a small default such as 2-3 active jobs to protect battery and avoid platform throttling?
-3. Should tracks over 20 minutes be blocked, or downloaded with a warning and manual confirmation?
-4. Should key detection be built into version one, or should version one rely on Rekordbox for key/BPM analysis?
-5. Should waveform preview be part of version one, or come after the core download/conversion path is proven?
-6. Should the first app be pure SwiftUI, or a local web UI wrapped in a lightweight macOS shell?
-
+1. Should unlimited processing mean truly unlimited active jobs, or unlimited queued jobs with a high active-job default?
+2. Should waveform preview be part of version one, or come after the core download/conversion path is proven?
+3. Should ForMyDJ create Rekordbox XML playlists automatically after each successful job?
+4. Should the app install/update `yt-dlp` and `ffmpeg`, or assume they are managed by Homebrew for the first private version?
