@@ -42,3 +42,25 @@ The first practical build should be a macOS-first local app with a minimal music
 7. Alerts for low-quality source, lossy-to-lossless conversion, clipping, mono audio, missing metadata, failed download, or duration over 20 minutes
 
 See [docs/SPEC.md](docs/SPEC.md) for the product and technical spec.
+
+## Run The Local App
+
+The working local version runs without third-party Python packages:
+
+```bash
+scripts/run-local.sh
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8765
+```
+
+The app uses 3 active processing workers with an unlimited queue. It saves finished audio files to the selected output folder and stores compact job metadata under `~/Library/Application Support/ForMyDJ`.
+
+## Current Implementation Note
+
+The repo includes a native SwiftUI app source under `Sources/ForMyDJ`, but this Mac's current Command Line Tools installation has a Swift compiler/SDK mismatch, so the Swift app cannot be verified locally until Xcode or matching Command Line Tools are installed.
+
+The working implementation is currently the local Python server in `app/server.py` with the UI in `app/static/`.

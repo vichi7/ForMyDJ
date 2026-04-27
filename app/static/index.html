@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ForMyDJ</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>ForMyDJ</h1>
+          <p>Local DJ audio intake for authorized SoundCloud, YouTube, and audio files.</p>
+        </div>
+        <button id="clearCache" type="button">Clear Cache</button>
+      </header>
+
+      <section class="controls" aria-label="Download controls">
+        <form id="linkForm" class="link-row">
+          <input id="linkInput" name="link" type="url" placeholder="Paste SoundCloud, YouTube, or direct audio link" autocomplete="off" />
+          <select id="formatSelect" name="format" aria-label="Output format">
+            <option value="wav">WAV</option>
+            <option value="aiff">AIFF</option>
+            <option value="mp3">MP3 320</option>
+          </select>
+          <button type="submit">Download</button>
+        </form>
+
+        <label class="output-row">
+          <span>Output folder</span>
+          <input id="outputDir" type="text" />
+        </label>
+
+        <label id="dropZone" class="drop-zone">
+          <input id="fileInput" type="file" accept="audio/*" multiple />
+          <span>Drag audio files here or click to choose files</span>
+        </label>
+      </section>
+
+      <section class="jobs-section" aria-label="Jobs">
+        <div class="section-heading">
+          <h2>Queue</h2>
+          <p>3 active jobs, unlimited queued jobs</p>
+        </div>
+        <div id="jobs" class="jobs"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+

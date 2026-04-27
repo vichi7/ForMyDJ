@@ -12,6 +12,7 @@ The first version is not a full review dashboard. It is a downloader/converter w
 - Easy desktop workflow.
 - One link submitted at a time.
 - Multiple submitted links can process concurrently, with no explicit user-facing limit.
+- The current processing policy is 3 active jobs with unlimited queued jobs.
 - Local audio files can be dragged and dropped for metadata cleanup/conversion.
 - Download starts immediately after submission.
 - User chooses output format per job: WAV, AIFF, or MP3.
@@ -91,7 +92,7 @@ Each job should produce a small report:
 
 ## Key Detection
 
-Musical key detection is useful, but should be treated as analysis metadata, not guaranteed truth. The first version should rely on Rekordbox analysis rather than implementing key detection inside ForMyDJ.
+Musical key detection is useful, but should be treated as analysis metadata, not guaranteed truth. ForMyDJ should not copy Rekordbox's proprietary analysis engine. The first in-house implementation can use an open/self-contained DSP approach and improve over time against known reference tracks.
 
 Potential future implementation options:
 
@@ -101,26 +102,27 @@ Potential future implementation options:
 
 ## Rekordbox Integration
 
-The near-term goal is Rekordbox-friendly output, not replacing Rekordbox analysis.
+The near-term goal is Rekordbox-friendly output while keeping ForMyDJ's own in-house quality reporting and key estimation.
 
 ForMyDJ should:
 
 - Save cleanly named files in predictable artist folders.
 - Embed useful tags and cover art.
-- Optionally create a Rekordbox XML/import playlist that points at newly processed files.
-- Let Rekordbox perform its own BPM, key, beatgrid, phrase, and waveform analysis after import.
+- Optionally create a Rekordbox XML/import playlist that points at newly processed files in a future version.
+- Avoid relying on Rekordbox just to identify musical key.
 
-ForMyDJ should not depend on unsupported modification of Rekordbox internal databases for version one. If a supported automation path becomes available, it can be added behind a dedicated Rekordbox integration module.
+ForMyDJ should not depend on unsupported modification of Rekordbox internal databases. If a supported automation path becomes available, it can be added behind a dedicated Rekordbox integration module.
 
 ## Architecture Direction
 
 Recommended first implementation:
 
-- Native macOS shell: SwiftUI app.
+- Native macOS shell: SwiftUI app when a matching Xcode/Command Line Tools install is available.
+- Current runnable implementation: local Python server plus browser UI.
 - Downloader engine: `yt-dlp`.
 - Audio engine: `ffmpeg` and `ffprobe`.
 - Job queue: local app-managed queue.
-- Storage: local SQLite database for job history and metadata.
+- Storage: compact JSONL metadata cache, compressed every 50 reports, with a clear-cache action.
 - Files: user-selected output directory with artist subfolders.
 
 GPU acceleration is not materially useful for this workflow. Audio download, demuxing, resampling, silence trim, and WAV/AIFF encoding are CPU-bound but lightweight compared with video processing. Battery life is best protected by avoiding unnecessary video downloads, avoiding needless re-encodes, limiting background analysis, and using efficient native macOS process execution.
@@ -138,7 +140,6 @@ If a job fails:
 
 ## Open Questions
 
-1. Should unlimited processing mean truly unlimited active jobs, or unlimited queued jobs with a high active-job default?
-2. Should waveform preview be part of version one, or come after the core download/conversion path is proven?
-3. Should ForMyDJ create Rekordbox XML playlists automatically after each successful job?
-4. Should the app install/update `yt-dlp` and `ffmpeg`, or assume they are managed by Homebrew for the first private version?
+1. Should waveform preview be part of version one, or come after the core download/conversion path is proven?
+2. Should ForMyDJ create Rekordbox XML playlists automatically after each successful job?
+3. Should the app install/update `yt-dlp` and `ffmpeg`, or assume they are managed by Homebrew for the first private version?
