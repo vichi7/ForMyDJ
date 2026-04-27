@@ -388,6 +388,31 @@ def enqueue(input_kind, input_value, output_format, output_dir):
     return jobs[job_id]
 
 
+def choose_output_folder(current_path):
+    default_path = Path(current_path or DEFAULT_OUTPUT).expanduser()
+    if not default_path.exists():
+        default_path = default_path.parent if default_path.parent.exists() else Path.home()
+
+    script = """
+on run argv
+  set defaultPath to POSIX file (item 1 of argv)
+  set selectedFolder to choose folder with prompt "Choose ForMyDJ output folder" default location defaultPath
+  return POSIX path of selectedFolder
+end run
+"""
+    result = subprocess.run(
+        ["osascript", "-e", script, str(default_path)],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        if "User canceled" in result.stderr:
+            return None
+        raise RuntimeError(result.stderr.strip() or "Could not open folder picker")
+    return result.stdout.strip().rstrip("/") or None
+
+
 class Handler(SimpleHTTPRequestHandler):
     def translate_path(self, path):
         parsed = urlparse(path)
@@ -446,6 +471,17 @@ class Handler(SimpleHTTPRequestHandler):
         if parsed.path == "/api/cache/clear":
             shutil.rmtree(CACHE_DIR, ignore_errors=True)
             self.send_json({"ok": True})
+            return
+
+        if parsed.path == "/api/output/choose":
+            length = int(self.headers.get("Content-Length", "0"))
+            payload = json.loads(self.rfile.read(length) or b"{}")
+            try:
+                path = choose_output_folder(payload.get("current_path") or str(DEFAULT_OUTPUT))
+            except Exception as exc:
+                self.send_json({"error": str(exc)}, 500)
+                return
+            self.send_json({"path": path, "cancelled": path is None})
             return
 
         self.send_json({"error": "Not found"}, 404)

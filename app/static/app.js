@@ -2,6 +2,9 @@ const linkForm = document.querySelector("#linkForm");
 const linkInput = document.querySelector("#linkInput");
 const formatSelect = document.querySelector("#formatSelect");
 const outputDir = document.querySelector("#outputDir");
+const chooseOutput = document.querySelector("#chooseOutput");
+const outputName = document.querySelector("#outputName");
+const outputPath = document.querySelector("#outputPath");
 const fileInput = document.querySelector("#fileInput");
 const dropZone = document.querySelector("#dropZone");
 const jobsEl = document.querySelector("#jobs");
@@ -10,7 +13,7 @@ const clearCache = document.querySelector("#clearCache");
 async function refreshJobs() {
   const response = await fetch("/api/jobs");
   const data = await response.json();
-  if (!outputDir.value) outputDir.value = data.default_output;
+  if (!outputDir.value) setOutputDir(data.default_output);
   renderJobs(data.jobs);
 }
 
@@ -52,6 +55,27 @@ function basename(value) {
   }
 }
 
+function setOutputDir(path) {
+  outputDir.value = path;
+  outputName.textContent = folderName(path);
+  outputPath.textContent = `in ${parentLabel(path)}`;
+  chooseOutput.title = path;
+}
+
+function friendlyPath(path) {
+  const home = path.startsWith("/Users/") ? path.split("/").slice(0, 3).join("/") : "";
+  return path.replace(home, "~").split("/").filter(Boolean).join(" / ") || path;
+}
+
+function folderName(path) {
+  return path.split("/").filter(Boolean).pop() || path;
+}
+
+function parentLabel(path) {
+  const parent = path.split("/").filter(Boolean).slice(0, -1).join("/");
+  return parent ? friendlyPath(`/${parent}`) : path;
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -61,6 +85,35 @@ function escapeHtml(value) {
     "'": "&#039;",
   })[char]);
 }
+
+chooseOutput.addEventListener("click", async () => {
+  const previousLabel = outputName.textContent;
+  chooseOutput.disabled = true;
+  outputName.textContent = "Choosing...";
+  outputPath.textContent = "";
+
+  try {
+    const response = await fetch("/api/output/choose", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ current_path: outputDir.value }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not choose output folder");
+    if (data.path) {
+      setOutputDir(data.path);
+    } else {
+      outputName.textContent = previousLabel;
+      outputPath.textContent = `in ${parentLabel(outputDir.value)}`;
+    }
+  } catch (error) {
+    outputName.textContent = previousLabel;
+    outputPath.textContent = `in ${parentLabel(outputDir.value)}`;
+    window.alert(error.message);
+  } finally {
+    chooseOutput.disabled = false;
+  }
+});
 
 linkForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -114,4 +167,3 @@ clearCache.addEventListener("click", async () => {
 
 refreshJobs();
 setInterval(refreshJobs, 1500);
-

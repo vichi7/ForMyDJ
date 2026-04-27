@@ -59,6 +59,7 @@ cat > "$LAUNCHER_M" <<'M'
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    [self buildMenu];
     [self startServer];
     [self buildWindow];
     [self loadAppAfterDelay];
@@ -66,6 +67,45 @@ cat > "$LAUNCHER_M" <<'M'
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
     return YES;
+}
+
+- (void)buildMenu {
+    NSMenu *mainMenu = [[NSMenu alloc] initWithTitle:@""];
+    NSMenuItem *appMenuItem = [[NSMenuItem alloc] initWithTitle:@""
+                                                         action:nil
+                                                  keyEquivalent:@""];
+    NSMenuItem *editMenuItem = [[NSMenuItem alloc] initWithTitle:@""
+                                                          action:nil
+                                                   keyEquivalent:@""];
+    [mainMenu addItem:appMenuItem];
+    [mainMenu addItem:editMenuItem];
+
+    NSMenu *appMenu = [[NSMenu alloc] initWithTitle:@"ForMyDJ"];
+    [appMenu addItemWithTitle:@"Quit ForMyDJ"
+                       action:@selector(terminate:)
+                keyEquivalent:@"q"];
+    appMenuItem.submenu = appMenu;
+
+    NSMenu *editMenu = [[NSMenu alloc] initWithTitle:@"Edit"];
+    [editMenu addItemWithTitle:@"Cut"
+                        action:@selector(cut:)
+                 keyEquivalent:@"x"];
+    [editMenu addItemWithTitle:@"Copy"
+                        action:@selector(copy:)
+                 keyEquivalent:@"c"];
+    [editMenu addItemWithTitle:@"Paste"
+                        action:@selector(paste:)
+                 keyEquivalent:@"v"];
+    [editMenu addItemWithTitle:@"Delete"
+                        action:@selector(delete:)
+                 keyEquivalent:@""];
+    [editMenu addItem:[NSMenuItem separatorItem]];
+    [editMenu addItemWithTitle:@"Select All"
+                        action:@selector(selectAll:)
+                 keyEquivalent:@"a"];
+    editMenuItem.submenu = editMenu;
+
+    NSApp.mainMenu = mainMenu;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {

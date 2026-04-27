@@ -27,10 +27,14 @@
           <button type="submit">Download</button>
         </form>
 
-        <label class="output-row">
+        <div class="output-row">
           <span>Output folder</span>
-          <input id="outputDir" type="text" />
-        </label>
+          <button id="chooseOutput" class="folder-button" type="button">
+            <span id="outputName">Downloads / ForMyDJ</span>
+            <small id="outputPath"></small>
+          </button>
+          <input id="outputDir" type="hidden" />
+        </div>
 
         <label id="dropZone" class="drop-zone">
           <input id="fileInput" type="file" accept="audio/*" multiple />
@@ -50,4 +54,3 @@
     <script src="/app.js"></script>
   </body>
 </html>
-
