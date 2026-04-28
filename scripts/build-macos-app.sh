@@ -214,7 +214,7 @@ int main(int argc, const char * argv[]) {
 
 M
 
-/usr/bin/clang -fobjc-arc -arch arm64 -mmacosx-version-min=12.0 "$LAUNCHER_M" -framework Cocoa -framework WebKit -o "$MACOS/ForMyDJ"
+/usr/bin/clang -fobjc-arc -mmacosx-version-min=12.0 "$LAUNCHER_M" -framework Cocoa -framework WebKit -o "$MACOS/ForMyDJ"
 rm -f "$LAUNCHER_C" "$LAUNCHER_M"
 
 echo "Built $APP"

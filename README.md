@@ -1,70 +1,69 @@
 # ForMyDJ
 
-ForMyDJ is a local-first macOS DJ/A&R utility for downloading authorized music links from SoundCloud, YouTube, and future music sources into clean DJ-library files.
+ForMyDJ is a local macOS app for turning authorized music links and audio files into clean, DJ-library-ready files.
 
-The first version prioritizes audio handling over UI polish:
+Paste a SoundCloud or YouTube link, choose WAV, AIFF, or MP3, pick an output folder, and ForMyDJ downloads, converts, tags, warns about common quality issues, and saves the finished track locally. You can also drag in local audio files for conversion and metadata cleanup.
 
-- Paste one link at a time.
-- Drag and drop local audio files.
-- Start downloading immediately.
-- Allow unlimited jobs to process in parallel.
-- Prefer the original uploaded WAV/AIFF when a platform exposes it.
-- Fall back to the best available audio stream and convert to the selected output format.
-- Export WAV, AIFF, or MP3.
-- Use 320 kbps CBR for MP3 output.
-- Standardize output to 44.1 kHz, 16-bit stereo for WAV/AIFF.
-- Trim leading/trailing digital silence only.
-- Preserve and extract useful metadata.
-- Save files directly in the selected output folder as `Song Title - Artist`.
-- Keep converted files available offline after a successful download.
-- Delete temporary source files after conversion.
+This project is for music you are authorized to access. It does not bypass DRM, paywalls, private accounts, or platform restrictions.
 
-This project is intended for private/local use with music the user is authorized to access. It should not bypass DRM, paywalls, or platform restrictions.
+## What It Does
 
-## Local Tooling
+- Downloads one SoundCloud or YouTube link at a time with `yt-dlp`.
+- Processes up to 3 active jobs while keeping an unlimited queue.
+- Converts output to WAV, AIFF, or 320 kbps MP3 with `ffmpeg`.
+- Standardizes WAV/AIFF output to 44.1 kHz, 16-bit, stereo.
+- Trims leading and trailing digital silence.
+- Preserves useful metadata and writes clean filenames as `Song Title - Artist`.
+- Warns when lossless output is created from a lossy source.
+- Warns about long tracks, mono audio, low-bitrate sources, and incomplete metadata.
+- Estimates musical key locally as helpful metadata, not guaranteed truth.
+- Stores compact processing metadata under `~/Library/Application Support/ForMyDJ`.
 
-The current Mac already has:
+## Requirements
 
-- `ffmpeg` 8.0.1
-- `yt-dlp` 2026.03.17
-- GitHub CLI authenticated as `vichi7`
+- macOS 12 or newer.
+- Python 3.9 through 3.12.
+- Xcode Command Line Tools, for building the desktop wrapper.
+- Homebrew packages: `ffmpeg` and `yt-dlp`.
 
-## First Build Target
+Install the system tools:
 
-The first practical build should be a macOS-first local app with a minimal music-library interface:
+```bash
+xcode-select --install
+brew install ffmpeg yt-dlp
+```
 
-1. Link input
-2. Local audio drag/drop import
-3. Output format selector: WAV, AIFF, MP3
-4. Destination folder picker
-5. Job queue with progress and retry status
-6. Finished-file action: reveal in Finder
-7. Alerts for low-quality source, lossy-to-lossless conversion, clipping, mono audio, missing metadata, failed download, or duration over 20 minutes
+If you do not have Homebrew yet, install it from [brew.sh](https://brew.sh/) first.
 
-See [docs/SPEC.md](docs/SPEC.md) for the product and technical spec.
+## Install And Run
 
-## Run The Local App
+Clone the repo:
 
-The desktop version runs without third-party Python packages.
+```bash
+git clone https://github.com/vichi7/ForMyDJ.git
+cd ForMyDJ
+```
 
 Build the double-clickable macOS app:
 
 ```bash
-scripts/build-macos-app.sh
+./scripts/build-macos-app.sh
 ```
 
-Then open:
-
-```text
-dist/ForMyDJ.app
-```
-
-The desktop app opens a ForMyDJ window with the embedded local UI. It starts the local audio engine internally, so you do not need to run a terminal command after opening the app.
-
-The browser version is still available for drag/drop testing:
+Open it:
 
 ```bash
-scripts/run-local.sh
+open dist/ForMyDJ.app
+```
+
+The app starts a local engine at `http://127.0.0.1:8765` inside its own window. Finished files are saved to the selected output folder.
+
+## Browser Mode
+
+You can also run the same local app in a browser without building the macOS wrapper:
+
+```bash
+./scripts/run-local.sh
 ```
 
 Then open:
@@ -73,10 +72,76 @@ Then open:
 http://127.0.0.1:8765
 ```
 
-The app uses 3 active processing workers with an unlimited queue. It saves finished audio files to the selected output folder and stores compact job metadata under `~/Library/Application Support/ForMyDJ`.
+## How To Use
 
-## Current Implementation Note
+1. Choose an output folder.
+2. Pick an output format: WAV, AIFF, or MP3.
+3. Paste a SoundCloud or YouTube link and press Download.
+4. Or drag local audio files into the drop zone.
+5. Watch the queue for progress, warnings, errors, and finished file paths.
 
-The repo includes a native SwiftUI app source under `Sources/ForMyDJ`, but this Mac's current Command Line Tools installation has a Swift compiler/SDK mismatch, so the Swift app cannot be verified locally until Xcode or matching Command Line Tools are installed.
+ForMyDJ saves completed audio directly in the selected folder. It keeps temporary working files out of the repo and removes temporary download files after conversion.
 
-The working implementation is currently the local Python server in `app/server.py` with the UI in `app/static/`.
+## Quality Notes
+
+ForMyDJ can convert a lossy source such as YouTube Opus/AAC or MP3 into WAV or AIFF, but that does not restore lost audio detail. It only places the already-lossy audio into a lossless container. The app warns when this happens so you can decide whether the file is good enough for your DJ workflow.
+
+The best available path is:
+
+1. Use the original WAV/AIFF if the platform officially exposes it.
+2. Otherwise use the best available audio stream.
+3. Convert only when the chosen output format requires it.
+
+## Project Structure
+
+```text
+app/
+  server.py          Local Python download/conversion engine
+  desktop.py         Python desktop helper
+  static/            Browser UI used by both browser mode and the macOS wrapper
+scripts/
+  build-macos-app.sh Build the WebKit-based macOS app wrapper
+  run-local.sh       Run the local browser app
+Sources/ForMyDJ/     Experimental native SwiftUI implementation
+docs/SPEC.md         Product and technical spec
+```
+
+The supported runnable app today is the local Python engine plus the WebKit/browser UI. The SwiftUI source is kept in the repo as an experimental native direction.
+
+## Development
+
+Run locally:
+
+```bash
+./scripts/run-local.sh
+```
+
+Check Python syntax:
+
+```bash
+python3 -m py_compile app/server.py app/desktop.py
+```
+
+Build the macOS wrapper:
+
+```bash
+./scripts/build-macos-app.sh
+```
+
+Generated files such as `dist/`, `.build/`, `DerivedData/`, `__pycache__/`, logs, and `.DS_Store` are ignored by Git.
+
+## Contributing
+
+Issues and pull requests are welcome. Useful contributions include:
+
+- More reliable source adapters.
+- Better metadata extraction and tagging.
+- Clearer quality warnings.
+- UI improvements that keep the workflow fast.
+- Tests around filename cleanup, warning generation, metadata reports, and job behavior.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
+
+## License
+
+ForMyDJ is open source under the [MIT License](LICENSE).
