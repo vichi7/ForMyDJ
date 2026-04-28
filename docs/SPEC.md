@@ -70,11 +70,11 @@ Bundled tools should not be committed directly into source control. Release/buil
 
 Tool updates should be manual:
 
-- User clicks an update button.
-- App checks for available `yt-dlp`/tool updates.
-- App shows what will be updated.
+- User clicks a combined update area/button.
+- App checks for app updates and tool updates.
+- App shows exactly what needs updating: app, `yt-dlp`, `ffmpeg`, `ffprobe`, or none.
 - User confirms.
-- App updates the local bundled tool copy if possible.
+- App updates only the specific components that need updates.
 
 The app should not silently update tools in the background.
 
@@ -85,9 +85,18 @@ The app should expose a clear update path:
 - A visible "Check for Updates" or "Download Latest Version" action.
 - It checks the latest GitHub release.
 - It tells the user if their app is current or outdated.
-- It downloads or opens the correct platform build.
+- It opens or downloads the correct platform build.
 
-Because the project does not require code signing/notarization, fully automatic self-replacement should be treated as optional and lower priority. The reliable open-source default is to download the newest build and guide the user to replace the old app.
+Because the project does not require code signing/notarization, fully automatic self-replacement should be treated as optional and lower priority. The reliable open-source default is to open the browser directly to the correct latest build or download it into the user's Downloads folder, then guide the user to replace the old app.
+
+The easiest v1 option is:
+
+1. App checks the latest GitHub release.
+2. App identifies the current operating system and CPU architecture.
+3. App opens the browser directly to the correct release asset or release page.
+4. User downloads/replaces the app manually.
+
+This avoids fragile unsigned self-update behavior while still making updates easy.
 
 ## Locked Workflow Requirements
 
@@ -149,8 +158,10 @@ Requirements:
 
 - Maintain one global playlist named `ForMyDJ Downloads.m3u`.
 - Update the M3U automatically whenever a track finishes successfully.
-- Store the M3U in the selected output folder unless a later design creates a better global location.
-- Use file paths compatible with the current operating system.
+- Store the master M3U in the app data directory.
+- Make the master M3U easily accessible from the UI with an "Open Playlist" or "Reveal Playlist" action.
+- Use absolute file paths in the master M3U for maximum compatibility when audio files stay in a flat user-selected output folder.
+- Optionally allow later export/copy of the M3U into the selected output folder.
 - Keep output useful for Rekordbox, Serato, Traktor, VirtualDJ, Engine DJ, Ableton, and general music players.
 
 Rekordbox XML is not a v1 requirement.
@@ -196,13 +207,15 @@ Requirements:
 - Display detected key in the job row/history.
 - Prefer an open-source engine rather than copying Rekordbox behavior.
 
-Recommended efficient path:
+Chosen efficient path:
 
-1. Evaluate Essentia `KeyExtractor` for quality. It is a mature music analysis library with key extraction support, but its open license is AGPLv3 for non-commercial/open use, so the license impact must be accepted before bundling.
-2. Evaluate `libkeyfinder`, used by Mixxx, for a DJ-oriented key detection path. It is GPLv3-or-later, so it also affects license compatibility.
-3. Keep the current lightweight in-house detector only as a fallback or temporary bridge.
+1. Use `libkeyfinder` for stronger open-source key detection.
+2. Accept and document the `libkeyfinder` GPLv3-or-later licensing implications.
+3. Keep the current lightweight in-house detector only as a fallback or temporary bridge until `libkeyfinder` is integrated.
 
 The project should document whichever key detection engine is selected, including license and binary/source availability.
+
+The UI should let users choose whether keys are displayed as standard notation such as `C# minor` or Camelot notation such as `12A`. Writing key tags into output files is useful but not required for the next implementation pass.
 
 ## Reports And Error Handling
 
@@ -277,12 +290,12 @@ The app should remain a one-page workflow:
 - Format selector
 - Output folder selector
 - Download action
-- Tool update action
-- App update action
+- Combined update area showing app/tool update status and exact pending updates
 - Drag/drop audio input
 - Job queue
 - History/artist search area
 - Automatic M3U status
+- Key notation choice: standard or Camelot
 
 The UI should be nicer and easier to understand than a raw developer tool, but it does not need enterprise-level polish.
 
@@ -297,8 +310,8 @@ Near term:
 - Add retry policy.
 - Add better error popups/report actions.
 - Add artist/history metadata.
-- Add tool update buttons.
-- Improve key detection engine.
+- Add a combined update area for app/tool updates.
+- Integrate `libkeyfinder` for stronger key detection.
 
 Cross-platform migration:
 
@@ -318,8 +331,7 @@ GPU acceleration is not materially useful for this workflow. Audio download, dem
 ## Open Questions
 
 1. Should Tauri migration happen before or after M3U/retry/history improvements land in the current app?
-2. Should `ForMyDJ Downloads.m3u` use absolute paths or relative paths?
-3. Should the app write detected key into ID3 `TKEY`, common comment-free metadata fields, or both where supported?
-4. Which key notation should display by default: standard (`C# minor`), Camelot (`12A`), Open Key, or multiple?
-5. Should tool updates use stable `yt-dlp` releases only, or offer stable/nightly choices?
-6. Should Windows/Linux support start as "run from source" before portable builds exist?
+2. Should tool updates use stable `yt-dlp` releases only, or offer stable/nightly choices?
+3. Should Windows/Linux support start as "run from source" before portable builds exist?
+4. Should the app-update action open the release asset in the browser or download it directly to `Downloads`?
+5. Should the default key display be standard notation or Camelot?
