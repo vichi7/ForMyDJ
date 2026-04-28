@@ -21,15 +21,18 @@ Read this before continuing product or implementation work. The public README sh
 - No Apple notarization requirement.
 - No Windows code-signing requirement.
 - No hosted backend or telemetry requirement.
+- Public cross-platform support should wait until portable downloads exist.
+- "Run from source" is for developers only, not the public user path.
 
 ## Platform Direction
 
 - Use one shared app, then package differently per OS.
 - Tauri is optional, not locked. It is one possible way to package one shared app for multiple operating systems.
 - Core decision: each OS should get its own easiest downloadable package.
-- macOS: `.app` or `.zip`.
-- Windows: portable `.exe` or `.zip`.
-- Linux: AppImage or source-run best effort.
+- macOS: portable `.zip` containing `ForMyDJ.app`.
+- Windows: portable `.zip` containing `ForMyDJ.exe` plus bundled tools.
+- Linux: AppImage or portable `.zip` later.
+- Prefer portable packages before full installers.
 - Current Python/WebKit implementation should keep working while migration happens.
 
 ## Tooling Direction
@@ -52,10 +55,13 @@ Recommended v1:
 1. User clicks combined update area.
 2. App checks latest GitHub release and bundled tool versions.
 3. App identifies OS/architecture.
-4. App downloads the correct build directly into the user's Downloads folder when practical.
-5. User replaces the app manually.
+4. App downloads the correct portable package directly into the user's Downloads folder when practical.
+5. App reveals the downloaded file in the Downloads folder.
+6. User unzips/replaces the app manually.
 
 This avoids fragile unsigned self-replacement while still keeping updates easy.
+
+Do not attempt automatic app replacement in v1.
 
 ## Output Direction
 
@@ -107,11 +113,12 @@ This avoids fragile unsigned self-replacement while still keeping updates easy.
 
 ## Next Implementation Priorities
 
-1. Decide whether to improve the current Python/WebKit app first or start cross-platform packaging first.
+1. Improve the current Python/WebKit app first while keeping cross-platform packaging in mind.
 2. Add automatic app-data M3U writing.
 3. Add retry policy and final-failure popup.
 4. Add history/artist metadata index.
 5. Add combined update area UI behavior.
 6. Integrate `libkeyfinder`.
 7. Have Claude Code redesign the visual UI and button layout.
-8. Update the public README once implementation matches the new direction.
+8. Create portable package scripts for macOS and Windows.
+9. Update the public README once implementation matches the new direction.

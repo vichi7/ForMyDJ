@@ -29,18 +29,21 @@ ForMyDJ is not intended to bypass DRM, paywalls, account restrictions, or privat
 - No paid/proprietary edition planned.
 - Releases are built manually by the maintainer.
 - GitHub Releases can store downloadable builds, but the app and README should expose obvious download/update paths so users are not forced to understand the Releases page.
+- Public cross-platform support should wait until portable downloads exist. "Run from source" can remain a developer path, but it should not be presented as the public user experience.
 
 ## Cross-Platform Direction
 
 The long-term app should use one shared product/UI codebase with platform-specific packages:
 
-- macOS: downloadable `.app` bundle or `.zip`.
-- Windows: portable `.exe`/`.zip` first; installer optional later.
-- Linux: AppImage or source-run support as best effort.
+- macOS: portable `.zip` containing `ForMyDJ.app`.
+- Windows: portable `.zip` containing `ForMyDJ.exe` plus bundled tools.
+- Linux: AppImage or portable `.zip` later.
 
 Tauri is a possible packaging/runtime option, not a locked requirement. It is useful because it can produce macOS/Windows/Linux desktop builds from one shared app with smaller size than Electron, but the core product decision is simpler: each operating system should get its own easiest downloadable package.
 
 Each operating system may use the easiest package format for that platform. The app should not become three separate product implementations unless there is a strong technical reason, because that would increase maintenance and make features drift across platforms.
+
+Use portable packages before full installers. Portable packages fit the open-source direction better because they do not need admin permissions, app-store distribution, notarization, or Windows installer signing. Full installers can be considered later only if users need shortcuts, file associations, or smoother replacement flows.
 
 The current runnable implementation remains:
 
@@ -95,8 +98,9 @@ The easiest v1 option is:
 
 1. App checks the latest GitHub release.
 2. App identifies the current operating system and CPU architecture.
-3. App offers to download the correct build directly into the user's Downloads folder.
-4. User downloads/replaces the app manually.
+3. App offers to download the correct portable package directly into the user's Downloads folder.
+4. App reveals the downloaded file in the Downloads folder.
+5. User unzips/replaces the app manually.
 
 This avoids fragile unsigned self-update behavior while still making updates easy.
 
@@ -321,6 +325,8 @@ Cross-platform packaging:
 - Bundle platform-specific sidecar binaries for `yt-dlp`, `ffmpeg`, and `ffprobe`.
 - Keep release build scripts manual and reproducible.
 - Include license notices for bundled tools and key detection dependencies.
+- Optimize for one shared implementation with per-OS portable packages.
+- Keep Python as the engine short term if it keeps momentum; replace it only if cross-platform packaging proves painful or unreliable.
 
 Storage:
 
@@ -332,6 +338,6 @@ GPU acceleration is not materially useful for this workflow. Audio download, dem
 
 ## Open Questions
 
-1. Should Windows/Linux support start as "run from source" before portable builds exist?
-2. Should app downloads happen fully inside the app, or should the app download the file and then reveal it in the Downloads folder?
-3. Should the first cross-platform implementation keep Python as the engine or replace it during packaging work?
+1. Should the first portable release target macOS only, or macOS and Windows together?
+2. Should Linux be included in the first portable release, or wait until Mac/Windows are solid?
+3. Should the app show release notes after downloading a new portable build?
