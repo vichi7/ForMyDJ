@@ -38,9 +38,9 @@ The long-term app should use one shared product/UI codebase with platform-specif
 - Windows: portable `.exe`/`.zip` first; installer optional later.
 - Linux: AppImage or source-run support as best effort.
 
-The preferred architecture direction is **Tauri plus bundled sidecar tools** because it keeps app size smaller than Electron, supports macOS/Windows/Linux packaging, and allows a web UI with native desktop access.
+Tauri is a possible packaging/runtime option, not a locked requirement. It is useful because it can produce macOS/Windows/Linux desktop builds from one shared app with smaller size than Electron, but the core product decision is simpler: each operating system should get its own easiest downloadable package.
 
-Each operating system may use the easiest package format for that platform, but the app should not become three separate product implementations unless there is a strong technical reason.
+Each operating system may use the easiest package format for that platform. The app should not become three separate product implementations unless there is a strong technical reason, because that would increase maintenance and make features drift across platforms.
 
 The current runnable implementation remains:
 
@@ -68,13 +68,15 @@ The GitHub repo should explain why these tools are included:
 
 Bundled tools should not be committed directly into source control. Release/build scripts should fetch pinned versions for each platform, verify checksums where practical, and include license notices.
 
-Tool updates should be manual:
+Tool updates should be manual and stable-first:
 
 - User clicks a combined update area/button.
 - App checks for app updates and tool updates.
 - App shows exactly what needs updating: app, `yt-dlp`, `ffmpeg`, `ffprobe`, or none.
 - User confirms.
 - App updates only the specific components that need updates.
+- `yt-dlp` updates should use stable releases by default because extractor changes can break downloads if the tool gets stale.
+- `ffmpeg` and `ffprobe` should update less often and stay pinned unless a release is needed for compatibility or security.
 
 The app should not silently update tools in the background.
 
@@ -93,7 +95,7 @@ The easiest v1 option is:
 
 1. App checks the latest GitHub release.
 2. App identifies the current operating system and CPU architecture.
-3. App opens the browser directly to the correct release asset or release page.
+3. App offers to download the correct build directly into the user's Downloads folder.
 4. User downloads/replaces the app manually.
 
 This avoids fragile unsigned self-update behavior while still making updates easy.
@@ -215,7 +217,7 @@ Chosen efficient path:
 
 The project should document whichever key detection engine is selected, including license and binary/source availability.
 
-The UI should let users choose whether keys are displayed as standard notation such as `C# minor` or Camelot notation such as `12A`. Writing key tags into output files is useful but not required for the next implementation pass.
+The default key display should be standard notation such as `C# minor`. The UI should let users switch between standard notation and Camelot notation such as `12A`. Writing key tags into output files is useful but not required for the next implementation pass.
 
 ## Reports And Error Handling
 
@@ -313,9 +315,9 @@ Near term:
 - Add a combined update area for app/tool updates.
 - Integrate `libkeyfinder` for stronger key detection.
 
-Cross-platform migration:
+Cross-platform packaging:
 
-- Move toward Tauri for shared UI and platform-specific builds.
+- Evaluate Tauri as one practical option for shared UI and platform-specific builds, but do not treat it as mandatory.
 - Bundle platform-specific sidecar binaries for `yt-dlp`, `ffmpeg`, and `ffprobe`.
 - Keep release build scripts manual and reproducible.
 - Include license notices for bundled tools and key detection dependencies.
@@ -330,8 +332,6 @@ GPU acceleration is not materially useful for this workflow. Audio download, dem
 
 ## Open Questions
 
-1. Should Tauri migration happen before or after M3U/retry/history improvements land in the current app?
-2. Should tool updates use stable `yt-dlp` releases only, or offer stable/nightly choices?
-3. Should Windows/Linux support start as "run from source" before portable builds exist?
-4. Should the app-update action open the release asset in the browser or download it directly to `Downloads`?
-5. Should the default key display be standard notation or Camelot?
+1. Should Windows/Linux support start as "run from source" before portable builds exist?
+2. Should app downloads happen fully inside the app, or should the app download the file and then reveal it in the Downloads folder?
+3. Should the first cross-platform implementation keep Python as the engine or replace it during packaging work?

@@ -25,7 +25,8 @@ Read this before continuing product or implementation work. The public README sh
 ## Platform Direction
 
 - Use one shared app, then package differently per OS.
-- Preferred future architecture: Tauri plus bundled sidecar tools.
+- Tauri is optional, not locked. It is one possible way to package one shared app for multiple operating systems.
+- Core decision: each OS should get its own easiest downloadable package.
 - macOS: `.app` or `.zip`.
 - Windows: portable `.exe` or `.zip`.
 - Linux: AppImage or source-run best effort.
@@ -39,6 +40,8 @@ Read this before continuing product or implementation work. The public README sh
 - Updates should be manual through one combined update area.
 - Combined update area must show exactly what needs updating: app, `yt-dlp`, `ffmpeg`, `ffprobe`, or none.
 - The app should update only the components that need updates.
+- `yt-dlp` should use stable updates by default because stale extractors can break downloads.
+- `ffmpeg`/`ffprobe` should stay pinned unless an update is needed for compatibility or security.
 
 ## App Update Direction
 
@@ -49,7 +52,7 @@ Recommended v1:
 1. User clicks combined update area.
 2. App checks latest GitHub release and bundled tool versions.
 3. App identifies OS/architecture.
-4. App opens the browser directly to the correct release asset or release page.
+4. App downloads the correct build directly into the user's Downloads folder when practical.
 5. User replaces the app manually.
 
 This avoids fragile unsigned self-replacement while still keeping updates easy.
@@ -78,7 +81,8 @@ This avoids fragile unsigned self-replacement while still keeping updates easy.
 - Use `libkeyfinder`.
 - Document GPLv3-or-later licensing impact.
 - Current lightweight key detector is only a bridge/fallback.
-- UI should let user choose standard notation such as `C# minor` or Camelot notation such as `12A`.
+- Default display is standard notation such as `C# minor`.
+- UI should let user switch between standard notation and Camelot notation such as `12A`.
 - Writing key tags into files is useful but not required in the next implementation pass.
 
 ## Error Report Direction
@@ -103,7 +107,7 @@ This avoids fragile unsigned self-replacement while still keeping updates easy.
 
 ## Next Implementation Priorities
 
-1. Decide whether to improve the current Python/WebKit app first or start Tauri migration first.
+1. Decide whether to improve the current Python/WebKit app first or start cross-platform packaging first.
 2. Add automatic app-data M3U writing.
 3. Add retry policy and final-failure popup.
 4. Add history/artist metadata index.
